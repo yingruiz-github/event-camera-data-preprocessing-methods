@@ -103,6 +103,57 @@ def n_bins_two_frame_no_agg(timestamps, n_bins, df, resolution, pos_directory, n
     pd.DataFrame({"neg_img_name":neg_img_names, "bin_start":bin_starts, "bin_ends":bin_ends}).to_csv(os.path.join(neg_directory, "meta_neg.csv"))
 
     return pos_images, neg_images, bin_starts, bin_ends
+
+
+# this section is used for seperate neg and pos event points in visevent event images. This section is only for visevent event images
+
+def check_pixel_correctness(image, checkSet, image_id):
+    '''
+    *description*
+    given a 3D np array. check if all its pixel value are in a pre-defined set. If find un-allowed pixel, print it to cmd.
+
+    *input*
+    image: 3D array. Represent an image
+    checkSet: a set of tuples. store the allowed pixels
+
+    *return*
+    0 or 1. 0 -> normal, 1 -> not normal
+    '''
+    for row in image:
+        for pixel in row:
+            if not (tuple(pixel) in checkSet):
+                print("find pixel value {} in image {}".format(pixel, image_id))
+                return 1
+    return 1
+
+def seperate_pos_neg(image, neg, pos):
+    '''
+    *description*
+    given a image input (np 3D arrau). seperate it to two seperate images based on polarity. 
+
+    *input*
+    image: 3D array, represent an visEvent event image
+    neg: negative pixel value
+    pos: postive pixel value
+
+    *return*
+    (pos_image, neg_image)
+    '''
+    resolution = (image.shape[0], image.shape[1]) 
+    neg_image = np.zeros(image.shape, dtype=np.uint8 ) # init empty neg image
+    pos_image = np.zeros(image.shape, dtype=np.uint8 ) # init empty pos image
+    
+    # seperate the image
+    for i in range(resolution[0]):
+        for j in range(resolution[1]):
+            if tuple(image[i][j]) == neg:
+                neg_image[i][j] = neg_image[i][j]+ 255
+            elif tuple(image[i][j]) == pos:
+                pos_image[i][j] = neg_image[i][j]+ 255
+
+    return (pos_image, neg_image)
+
+
                 
             
         
